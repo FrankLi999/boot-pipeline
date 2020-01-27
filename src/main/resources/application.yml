@@ -1,0 +1,31 @@
+server:
+  port: 5002
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"  
+spring:
+  jackson:
+    default-property-inclusion: non_null
+  jpa:
+    hibernate:
+      ddl-auto: update
+  datasource:
+    tomcat:
+      max-active: 10
+      max-idle: 10000
+      max-wait: 10000
+      test-on-borrow: true
+    url: jdbc:h2:file:${dataBaseUrl}
+    data-username: sa
+    data-password:
+    driver-class-name: org.h2.Driver
+
+dataBaseUrl: ./h2/alerts_db;DB_CLOSE_ON_EXIT=FALSE
+
+
+initialDelay: 10000
+fixedDelay: 60000
+
+

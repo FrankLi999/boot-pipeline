@@ -1,0 +1,30 @@
+pipeline {
+    agent any
+    parameters {
+        string(name:'buildNumber',defaultValue: 'n/a',description:'')
+    }
+    stages {
+        stage('Build') {
+            steps {
+                script {
+                    echo 'Pulling...' + env.BRANCH_NAME
+                    def mvnHome = tool 'Maven363'
+                    echo "mvnHome = ${mvnHome}"
+                    if (isUnix()) {
+                        // sh "'${M2_HOME}/bin/mvn' -Dintegration-tests.skip=true -Dunit-tests.skip=true clean package -f ../pom.xml"
+                        sh "'${M2_HOME}/bin/mvn' -Dintegration-tests.skip=true -Dunit-tests.skip=true clean package"
+                        //TODO: add params
+                        // sh 'docker build -f Dockerfile -t xli9999/boot-pipeline:1.0 ../'
+                        // sh 'docker build -f docker/Dockerfile -t xli9999/boot-pipeline:1.0 ../'
+                        sh 'docker build -f docker/Dockerfile -t xli9999/boot-pipeline:$buildNumber ./'
+                        sh "docker run --name boot-pipeline-${buildNumber} -d --publish 5002:5002 xli9999/boot-pipeline:$buildNumber"
+                    } else {
+                        bat(/"${M2_HOME}\bin\mvn" -Dintegration-tests.skip=true -Dunit-tests.skip=true clean package/)
+                        
+                    }
+                }
+                
+            }
+        }
+    }
+}
