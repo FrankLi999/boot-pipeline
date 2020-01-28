@@ -1,8 +1,8 @@
 pipeline {
     agent any
     parameters {
-        string(name:'buildNumber',defaultValue: 'n/a',description:'')
-        string(name:'branchName',defaultValue: 'n/a',description:'')
+        string(name:'buildNumber',defaultValue: '1.0-release',description:'')
+        string(name:'branchName',defaultValue: 'master',description:'')
     }
     environment {
         // APPLICATION_NAME = 'python-nginx'
