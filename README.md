@@ -1,6 +1,6 @@
-## A spring boot 2 sample app project ![Twitter Follow](https://img.shields.io/twitter/follow/mromeh.svg?style=social)
-
 ## About
+
+This is a Reference Spring boot app with multi-branch jenkins pipeline triggers docker, openshift and cloudformation pipeline.
 
 Sample app generated from my spring boot custome maven archetype : https://github.com/Romeh/spring-boot-quickstart-archtype
 
