@@ -2,9 +2,19 @@ pipeline {
     agent any
     parameters {
         string(name:'buildNumber',defaultValue: 'n/a',description:'')
+        string(name:'branchName',defaultValue: '', description:'')
     }
     stages {
-        stage('Build') {
+        stage('Checkout branch') {
+            steps {
+                if (branchName != null && && !branchName.isEmpty()) {
+                    // def repositoryUrl = scm.locations[0].remote
+                    // git branch: "${branch}", url: "${repositoryUrl}" // declared in environment
+                    git branch: "${branchName}" // declared in environment
+                }
+            }
+        }
+        stage('Create Docker image and run it') {
             steps {
                 script {
                     echo 'Pulling...' + env.BRANCH_NAME

@@ -1,0 +1,107 @@
+pipeline {
+    agent any
+    parameters {
+        string(name:'buildNumber',defaultValue: 'n/a',description:'')
+        string(name:'branchName',defaultValue: 'n/a',description:'')
+    }
+    environment {
+        // APPLICATION_NAME = 'python-nginx'
+        // GIT_REPO="http://github.com/ruddra/openshift-python-nginx.git"
+        // GIT_BRANCH="master"
+        // STAGE_TAG = "promoteToQA"
+        DEV_PROJECT = "wcm-bpm"
+        // STAGE_PROJECT = "stage"
+        TEMPLATE_NAME = "boot-pipeline"
+        // ARTIFACT_FOLDER = "target"
+        // PORT = 8081;
+    }
+    stages {
+        stage('Checkout branch') {
+            steps {
+                if (branchName != null && && !branchName.isEmpty()) {
+                    // def repositoryUrl = scm.locations[0].remote
+                    // git branch: "${branch}", url: "${repositoryUrl}" // declared in environment
+                    git branch: "${branchName}" // declared in environment
+                }
+            }
+        }
+        stage('Create Image Builder') {
+            when {
+                expression {
+                    openshift.withCluster() {
+                        openshift.withProject(DEV_PROJECT) {
+                            return !openshift.selector("bc", "${TEMPLATE_NAME}").exists();
+                        }
+                    }
+                }
+            }
+            steps {
+                script {
+                    openshift.withCluster() {
+                        openshift.withProject(DEV_PROJECT) {
+                            // openshift.newBuild("--name=${TEMPLATE_NAME}", "--docker-image=docker.io/nginx:mainline-alpine", "--binary=true")
+                            openshift.newBuild("--name=${TEMPLATE_NAME}", "--image-stream=redhat-openjdk18-openshift:latest", "--binary=true")
+                        }
+                    }
+                }
+            }
+        stage('Build Image') {
+            steps {
+                script {
+                    sh "rm -rf ocp && mkdir -p ocp/deployments"
+                    sh "pwd && ls -la target "
+                    sh "cp target/*.jar ocp/deployments"
+                    openshift.withCluster() {
+                        openshift.withProject(DEV_PROJECT) {
+                            // openshift.selector("bc", "$TEMPLATE_NAME").startBuild("--from-archive=${ARTIFACT_FOLDER}/${APPLICATION_NAME}_${BUILD_NUMBER}.tar.gz", "--wait=true")
+                            openshift.selector("bc", "$TEMPLATE_NAME").startBuild("--from-dir=./ocp", "--follow", "--wait=true")
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Create TEST') {
+            when {
+                expression {
+                    openshift.withCluster() {
+                        openshift.withProject(DEV_PROJECT) {
+                            return !openshift.selector('dc', "$TEMPLATE_NAME").exists()
+                        }
+                    }
+                }
+            }
+            steps {
+                script {
+                    openshift.withCluster() {
+                        openshift.withProject(DEV_PROJECT) {
+                            def app = openshift.newApp("boot-pipeline:latest")
+                            app.narrow("svc").expose()
+
+                            //http://localhost:5002/actuator/health
+                            openshift.set("probe dc/boot-pipeline --readiness --get-url=http://:5002/actuator/health --initial-delay-seconds=30 --failure-threshold=10 --period-seconds=10")
+                            openshift.set("probe dc/boot-pipeline --liveness  --get-url=http://:5002/actuator/health --initial-delay-seconds=180 --failure-threshold=10 --period-seconds=10")
+
+                            def dc = openshift.selector("dc", "boot-pipeline")
+                            while (dc.object().spec.replicas != dc.object().status.availableReplicas) {
+                                sleep 10
+                            }
+                            openshift.set("triggers", "dc/boot-pipeline", "--manual")
+                        }
+                    }
+                }
+            }
+        }
+        stage('Deploy TEST') {
+            steps {
+                script {
+                    openshift.withCluster() {
+                        openshift.withProject(env.DEV_PROJECT) {
+                            openshift.selector("dc", "boot-pipeline").rollout().latest()
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

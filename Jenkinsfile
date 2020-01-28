@@ -70,33 +70,35 @@ pipeline {
                 cucumber buildStatus: null, fileIncludePattern: '**/cucumber.json', jsonReportDirectory: 'target', sortingMethod: 'ALPHABETICAL'
             }
         }
-        // stage('Sonar scan execution') {
+        /*
+        stage('Sonar scan execution') {
             // Run the sonar scan
-            // steps {
-                // script {
-                    // def mvnHome = tool 'Maven 3.5.2'
-                    // withSonarQubeEnv {
-
-                        // sh "'${mvnHome}/bin/mvn'  verify sonar:sonar -Dintegration-tests.skip=true -Dmaven.test.failure.ignore=true"
-                    // }
-                // }
-            // }
-        // }
+            steps {
+                script {
+                    def mvnHome = tool 'Maven 3.5.2'
+                    withSonarQubeEnv {
+                        sh "'${mvnHome}/bin/mvn'  verify sonar:sonar -Dintegration-tests.skip=true -Dmaven.test.failure.ignore=true"
+                    }
+                }
+            }
+        }
         // waiting for sonar results based into the configured web hook in Sonar server which push the status back to jenkins
-        // stage('Sonar scan result check') {
-        //    steps {
-        //        timeout(time: 2, unit: 'MINUTES') {
-        //            retry(3) {
-        //                script {
-        //                    def qg = waitForQualityGate()
-        //                    if (qg.status != 'OK') {
-        //                        error "Pipeline aborted due to quality gate failure: ${qg.status}"
-        //                    }
-        //                }
-        //            }
-        //        }
-        //    }
-        // }
+        stage('Sonar scan result check') {
+           steps {
+               timeout(time: 2, unit: 'MINUTES') {
+                   retry(3) {
+                       script {
+                           def qg = waitForQualityGate()
+                           if (qg.status != 'OK') {
+                               error "Pipeline aborted due to quality gate failure: ${qg.status}"
+                           }
+                       }
+                   }
+               }
+           }
+        }
+        */
+        /*
         stage('Development deploy approval and deployment') {
             steps {
                 script {
@@ -112,10 +114,11 @@ pipeline {
                             //
                             if (developmentArtifactVersion != null && !developmentArtifactVersion.isEmpty()) {
                                 // replace it with your application name or make it easily loaded from pom.xml
+                                def branchName = env.BRANCH_NAME;
                                 def jarName = "application-${developmentArtifactVersion}.jar"
                                 echo "the application is deploying ${jarName}"
                                 // NOTE : CREATE your deployemnt JOB, where it can take parameters whoch is the jar name to fetch from jenkins workspace
-                                build job: 'boot-docker-pipeline', parameters: [[$class: 'StringParameterValue', name: 'buildNumber', value: developmentArtifactVersion]]
+                                build job: 'boot-docker-pipeline', parameters: [[$class: 'StringParameterValue', name: 'buildNumber', value: developmentArtifactVersion], [$class: 'StringParameterValue', name: 'branchName', value: branchName]]
                                 echo 'the application is deployed !'
                             } else {
                                 error 'the application is not  deployed as development version is null!'
@@ -147,6 +150,103 @@ pipeline {
                 }
             }
         }
+        */
+        /*
+        stage('Release and publish artifact') {
+            when {
+                // check if branch is master
+                branch 'master'
+            }
+            steps {
+                // create the release version then create a tag with it , then push to nexus releases the released jar
+                script {
+                    def mvnHome = tool 'Maven363' //
+                    if (currentBuild.result == null || currentBuild.result == 'SUCCESS') {
+                        def v = getReleaseVersion()
+                        releasedVersion = v;
+                        if (v) {
+                            echo "Building version ${v} - so released version is ${releasedVersion}"
+                        }
+                        // jenkins user credentials ID which is transparent to the user and password change
+                        sshagent(['0000000-3b5a-454e-a8e6-c6b6114d36000']) {
+                            sh "git tag -f v${v}"
+                            sh "git push -f --tags"
+                        }
+                        sh "'${mvnHome}/bin/mvn' -Dmaven.test.skip=true  versions:set  -DgenerateBackupPoms=false -DnewVersion=${v}"
+                        sh "'${mvnHome}/bin/mvn' -Dmaven.test.skip=true clean deploy"
+
+                    } else {
+                        error "Release is not possible. as build is not successful"
+                    }
+                }
+            }
+        }
+        */
+        stage('Deploy to Acceptance') {
+            when {
+                // check if branch is master
+                branch 'master'
+            }
+            steps {
+                script {
+                    if (currentBuild.result == null || currentBuild.result == 'SUCCESS') {
+                        // timeout(time: 3, unit: 'MINUTES') {
+                        //     //input message:'Approve deployment?', submitter: 'it-ops'
+                        //     input message: 'Approve deployment to UAT?'
+                        // }
+                        timeout(time: 3, unit: 'MINUTES') {
+                            //  deployment job which will take the relasesed version
+                            def v = getReleaseVersion()
+                            releasedVersion = v;
+                            if (v) {
+                                echo "Building version ${v} - so released version is ${releasedVersion}"
+                            }
+
+                            if (releasedVersion != null && !releasedVersion.isEmpty()) {
+                                // make the applciation name for the jar configurable
+                                def jarName = "application-${releasedVersion}.jar"
+                                echo "the application is deploying ${jarName}"
+                                def branchName = env.BRANCH_NAME;
+                                echo "branchName ${jarName}"
+                                // NOTE : DO NOT FORGET to create your UAT deployment jar , check Job AlertManagerToUAT in Jenkins for reference
+                                // the deployemnt should be based into Nexus repo
+                                // build job: 'AApplicationToACC', parameters: [[$class: 'StringParameterValue', name: 'jarName', value: jarName], [$class: 'StringParameterValue', name: 'appVersion', value: releasedVersion]]
+                                build job: 'boot-openshift-pipeline', parameters: [[$class: 'StringParameterValue', name: 'buildNumber', value: releasedVersion], [$class: 'StringParameterValue', name: 'branchName', value: branchName]]
+                                echo 'the application is deployed !'
+                            } else {
+                                error 'the application is not  deployed as released version is null!'
+                            }
+
+                        }
+                    }
+                }
+            }
+        }
+        /*
+        stage('ACC E2E tests') {
+            when {
+                // check if branch is master
+                branch 'master'
+            }
+            steps {
+                // give some time till the deployment is done, so we wait 45 seconds
+                sleep(45)
+                script {
+                    if (currentBuild.result == null || currentBuild.result == 'SUCCESS') {
+                        timeout(time: 2, unit: 'MINUTES') {
+
+                            script {
+                                def mvnHome = tool 'Maven363'
+                                // NOTE : if you change the test class name change it here as well
+                                sh "'${mvnHome}/bin/mvn' -Dtest=ApplicationE2E surefire:test"
+                            }
+
+                        }
+                    }
+                }
+            }
+        }
+        */
 	}
     post {
     //     always {

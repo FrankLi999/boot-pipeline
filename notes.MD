@@ -18,7 +18,7 @@
    
    path: Maven363
    name: /opt/maven
-2. create three local branches
+3. create three local branches
 
    git branch development
    git branch test,
@@ -36,3 +36,13 @@
 
    // delete branch remotely
    git push origin --delete development
+
+4. Docker build for dev
+
+5. Openshift build for testing
+
+   https://ruddra.com/posts/openshift-python-gunicorn-nginx-jenkins-pipelines-part-two/
+
+   set up jenkins for openshift -- 
+       check the booksore example
+       https://github.com/pavankjadda/BookStore
