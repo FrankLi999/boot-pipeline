@@ -19,7 +19,6 @@ pipeline {
         stage('Create Docker image and run it') {
             steps {
                 script {
-                    echo 'Pulling...' + env.BRANCH_NAME
                     def mvnHome = tool 'Maven363'
                     echo "mvnHome = ${mvnHome}"
                     if (isUnix()) {
