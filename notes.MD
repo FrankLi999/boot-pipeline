@@ -45,7 +45,7 @@
     There are a few ways to use an external Jenkins to deploy applications to OpenShift:
 
     http://v1.uncontained.io/playbooks/continuous_delivery/external-jenkins-integration.html
-    
+
     https://blog.openshift.com/using-openshift-pipeline-plugin-external-jenkins/
 
     OpenShift Pipeline Plugin: Openshift Pipeline Jenkins Plugin
@@ -53,7 +53,11 @@
         o server and use oc mechanism to deploy applications to OpenShift.
         o You can use REST APIs to interact with OpenShift.
         o You can use OpenShift plugin to deploy applications to OpenShift.
+     
+     
      use "oc whoami -t" to get the auth token
+     detect api server url: oc config view --minify -o jsonpath='{.clusters[*].cluster.server}'
+
    Use Jenkins deployed on Openshift cluster - Openshift Client Jenkins Plugin
    https://medium.com/t/@pavankjadda/spring-boot-application-deployment-with-jenkins-pipeline-on-open-shift-cluster-f9fafdb0d6a9
 
