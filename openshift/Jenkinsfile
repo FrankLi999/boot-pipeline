@@ -30,27 +30,27 @@ pipeline {
                 }
             }
         }
-        // stage('Create Image Builder') {
-        //     when {
-        //         expression {
-        //             openshift.withCluster() {
-        //                 openshift.withProject(DEV_PROJECT) {
-        //                     return !openshift.selector("bc", "${TEMPLATE_NAME}").exists();
-        //                 }
-        //             }
-        //         }
-        //     }
-        //     steps {
-        //         script {
-        //             openshift.withCluster() {
-        //                 openshift.withProject(DEV_PROJECT) {
-        //                     // openshift.newBuild("--name=${TEMPLATE_NAME}", "--docker-image=docker.io/nginx:mainline-alpine", "--binary=true")
-        //                     openshift.newBuild("--name=${TEMPLATE_NAME}", "--image-stream=redhat-openjdk18-openshift:latest", "--binary=true")
-        //                 }
-        //             }
-        //         }
-        //     }
-        // }
+        stage('Create Image Builder') {
+            when {
+                expression {
+                    openshift.withCluster() {
+                        openshift.withProject(DEV_PROJECT) {
+                            return !openshift.selector("bc", "${TEMPLATE_NAME}").exists();
+                        }
+                    }
+                }
+            }
+            steps {
+                script {
+                    openshift.withCluster() {
+                        openshift.withProject(DEV_PROJECT) {
+                            // openshift.newBuild("--name=${TEMPLATE_NAME}", "--docker-image=docker.io/nginx:mainline-alpine", "--binary=true")
+                            openshift.newBuild("--name=${TEMPLATE_NAME}", "--image-stream=redhat-openjdk18-openshift:latest", "--binary=true")
+                        }
+                    }
+                }
+            }
+        }
         // stage('Build Image') {
         //     steps {
         //         script {
