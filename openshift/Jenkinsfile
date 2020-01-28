@@ -33,7 +33,7 @@ pipeline {
         stage('Login to Openshift') {
             //TODO
             steps {
-                sh "oc login -u kubeadmin -p cznQP-n4pBk-cnXTg-nkevH https://api.crc.testing:6443"
+                sh "oc login  --insecure-skip-tls-verify -u kubeadmin -p cznQP-n4pBk-cnXTg-nkevH https://api.crc.testing:6443"
             }
         }
         stage('Create Image Builder') {
