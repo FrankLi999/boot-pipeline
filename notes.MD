@@ -43,12 +43,36 @@
    
    Deploy to Openshift from external Jenkins server:
     to use Openshift Client Jenkins Plugin:
+     > update /etc/environment,
+        added directory to "oc" to the PATH env var
+
+
      option 1: config the following parameters:
         KUBERNETES_SERVICE_HOST: api.crc.testing
         KUBERNETES_SERVICE_PORT_HTTPS: 8443
         SKIP_TLS: true
         AUTH_TOKEN:  use "oc whoami -t" to get the auth token
-     
+            openshift.withCluster() {
+                //TODO: this does not work
+                // java.nio.file.NoSuchFileException:  /var/run/secrets/kubernetes.io/serviceaccount/token
+            }
+        
+    option 2: 
+         jenkins console -> Manage Jenkins -> Manage System
+         in the "OpenShift Client Plugin", 
+           add a cluster:
+                	Cluster Name: local-cluster
+                    API Server URL: https://api.crc.testing:6443
+                    Added a Jenkins user name/password credential with id: local-openshift
+                    Disable TLS verify: checked
+
+            openshift.withCluster('local-cluster', 'local-openshift') {  
+            }
+    option 3: 
+        openshift.withCluster('https://api.crc.testing:6443', '7VYPRf-y-GnXIY58ii8nczqh6l7xRbHYl3NzRfnDuPY') {
+            //resole token via using command 
+            // "oc whoami -t" to get the auth token
+        }        
     There are a few ways to use an external Jenkins to deploy applications to OpenShift:
 
     http://v1.uncontained.io/playbooks/continuous_delivery/external-jenkins-integration.html
