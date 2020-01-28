@@ -43,10 +43,49 @@
    
    Deploy to Openshift from external Jenkins server:
     to use Openshift Client Jenkins Plugin:
-     > update /etc/environment,
+     1) update /etc/environment,
         added directory to "oc" to the PATH env var
+     2). create a openshift credential named such as "openshift-token"
+         Credentials -> System -> Global credentials -> Add Credential 
+        kind: Openshift Token for Openshift client plugin
+        > "oc whoami -t" to get the auth token
 
+        or: cznQP-n4pBk-cnXTg-nkevH
+        
+     3) Config openshift client jenkins pipeline:
+        Manage Jenkins -> Configure System -> and find the OpenShift Plugin section.
+        
+     
+            Cluster Name: local-cluster
+            API Server URL: https://api.crc.testing:6443
+            Added a Jenkins user name/password credential with id: local-openshift
+            Disable TLS verify: checked
+            copy/paste the certifcate for  "api.crc.testing" from the browser:
+                -----BEGIN CERTIFICATE-----
+                MIIDRTCCAi2gAwIBAgIIaijRpQEmG78wDQYJKoZIhvcNAQELBQAwNzESMBAGA1UE
+                CxMJb3BlbnNoaWZ0MSEwHwYDVQQDExhrdWJlLWFwaXNlcnZlci1sYi1zaWduZXIw
+                HhcNMjAwMTI0MDMzMjM5WhcNMjAwMjIzMDMzMjQwWjAaMRgwFgYDVQQDEw9hcGku
+                Y3JjLnRlc3RpbmcwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCx1lx8
+                Ok3poPYnVhhV+qdRRJCpAkTcff8e7sKCVdXX9xK8+bO2ettM8e0g5GecOPMo6PZK
+                kqChRiZVBZWB4AI41IW129NxdY14iwnB6/zs46UgwatmfEXkMQt2LivCoiyV9sZe
+                +L4p8IfWAdjqKX5bgia0aTazqNVYcQL4gzSC4tk8qubxJcjbP4hVJBZ0+43e3wb1
+                GkdfTXSh1yoVQK6TCwGdYm+RG6ZWdKZpyrLNo4MlvsQJ0YmPP235ZIHNOODRdBH2
+                xZg7f/c230iLTKRZ/NLepeuHxcdzU3M6/I0vl52om2VTktQ1VceUjDN2Q4j2MEpm
+                L13kyD3lqRxEcDiBAgMBAAGjcjBwMA4GA1UdDwEB/wQEAwIFoDATBgNVHSUEDDAK
+                BggrBgEFBQcDATAMBgNVHRMBAf8EAjAAMB8GA1UdIwQYMBaAFN46YMxQu2ZrmsyE
+                RgARUDN2hPLiMBoGA1UdEQQTMBGCD2FwaS5jcmMudGVzdGluZzANBgkqhkiG9w0B
+                AQsFAAOCAQEAPMvF5LKY6OW2Vrv8UvlPROdN10cmZWtFBsnmcbg0CblLT29E2vJ2
+                DsRz8tqRwk26a6F5NRrx7JbYBMUK2XnEChL01zPSGdTLJu7Ly/6BcKRF5xZkqD2p
+                EJmuHRibANZDrWkLllAIqZkKRx+nynP0ZFK5DZFX4/QZPj/vYZ1+rFipA4flBaRa
+                3uLXibtbivXZD3To9MRMPckxHtXvIgObNEP0iR5548Ba8Wy4FYPS36m7ssfBlGI7
+                XPwLkgUUHgSjeS8f5sn4sbBf80OUEjJB6IH3ygCSB1ep27PeSNYvPL4iEnP1t0R/
+                4VBLlt6cM0UUPS2pSlPlQ/H4UJ5scJHdBA==
+                -----END CERTIFICATE-----
 
+            openshift.withCluster('local-cluster', 'local-openshift') {  
+            }
+     
+     
      option 1: config the following parameters:
         KUBERNETES_SERVICE_HOST: api.crc.testing
         KUBERNETES_SERVICE_PORT_HTTPS: 8443
