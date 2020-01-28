@@ -50,12 +50,13 @@ pipeline {
                     // https://github.com/openshift/origin/tree/master/examples/jenkins/pipeline
                     // openshift.withCluster('https://api.crc.testing:6443', '7VYPRf-y-GnXIY58ii8nczqh6l7xRbHYl3NzRfnDuPY') {
                     // openshift.withCluster() {
-                    openshift.withCluster('local-cluster', 'local-openshift') {   
-                        openshift.withProject(DEV_PROJECT) {
-                            // openshift.newBuild("--name=${TEMPLATE_NAME}", "--docker-image=docker.io/nginx:mainline-alpine", "--binary=true")
-                            openshift.newBuild("--name=${TEMPLATE_NAME}", "--image-stream=redhat-openjdk18-openshift:latest", "--binary=true")
-                        }
-                    }
+                    echo "create build config"
+                    // openshift.withCluster('local-cluster', 'local-openshift') {   
+                    //     openshift.withProject(DEV_PROJECT) {
+                    //         // openshift.newBuild("--name=${TEMPLATE_NAME}", "--docker-image=docker.io/nginx:mainline-alpine", "--binary=true")
+                    //         openshift.newBuild("--name=${TEMPLATE_NAME}", "--image-stream=redhat-openjdk18-openshift:latest", "--binary=true")
+                    //     }
+                    // }
                 }
             }
         }
