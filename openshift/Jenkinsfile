@@ -18,6 +18,8 @@ pipeline {
     stages {
         stage('Checkout branch') {
             steps {
+                echo "repo rul is ${scm.locations[0].remote}"
+                
                 if (branchName != null && !branchName.isEmpty()) {
                     // def repositoryUrl = scm.locations[0].remote
                     // git branch: "${branch}", url: "${repositoryUrl}" // declared in environment
@@ -45,6 +47,7 @@ pipeline {
                     }
                 }
             }
+        }
         stage('Build Image') {
             steps {
                 script {
