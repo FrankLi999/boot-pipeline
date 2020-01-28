@@ -53,7 +53,9 @@ pipeline {
                     openshift.withCluster('local-cluster', 'openshift-token') { 
                         openshift.withProject(DEV_PROJECT) {
                             // openshift.newBuild("--name=${TEMPLATE_NAME}", "--docker-image=docker.io/nginx:mainline-alpine", "--binary=true")
-                            openshift.newBuild("--name=${TEMPLATE_NAME}", "--image-stream=redhat-openjdk18-openshift:latest", "--binary=true")
+                            // openshift.newBuild("--name=${TEMPLATE_NAME}", "--image-stream=redhat-openjdk18-openshift:latest", "--binary=true")
+                            openshift.newBuild("--name=${TEMPLATE_NAME}", "--image-stream=openjdk18-openshift:latest", "--binary=true")
+                            
                         }
                     }
                 }
