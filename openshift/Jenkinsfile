@@ -97,7 +97,7 @@ pipeline {
                             def app = openshift.newApp("boot-pipeline:latest")
                             def dcmap = app.narrow('dc').object()
                             dcmap.spec.template.spec.containers[0].ports[0].containerPort = "5002"
-                            echo "${dcmap}"
+                            echo ">>>>>>>>>> 0"
                             openshift.apply(dcmap)
                             echo ">>>>>>>>>> 1"
                             app.narrow('svc').expose()
