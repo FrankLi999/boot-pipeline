@@ -1,0 +1,36 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: boot-pipeline
+  namespace: wcm-bpm
+  selfLink: /api/v1/namespaces/wcm-bpm/services/boot-pipeline
+  uid: 198aa61a-420d-11ea-b19a-52fdfc072182
+  resourceVersion: '222464'
+  creationTimestamp: '2020-01-28T20:31:01Z'
+  labels:
+    app: boot-pipeline
+    app.kubernetes.io/component: boot-pipeline
+    app.kubernetes.io/instance: boot-pipeline
+  annotations:
+    openshift.io/generated-by: OpenShiftNewApp
+spec:
+  ports:
+    - name: 5002-tcp
+      protocol: TCP
+      port: 5002
+      targetPort: 5002
+    - name: 8443-tcp
+      protocol: TCP
+      port: 8443
+      targetPort: 8443
+    - name: 8778-tcp
+      protocol: TCP
+      port: 8778
+      targetPort: 8778
+  selector:
+    deploymentconfig: boot-pipeline
+  clusterIP: 172.30.58.208
+  type: ClusterIP
+  sessionAffinity: None
+status:
+  loadBalancer: {}

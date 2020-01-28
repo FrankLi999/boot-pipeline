@@ -129,6 +129,9 @@
      detect api server url: oc config view --minify -o jsonpath='{.clusters[*].cluster.server}'
 
    Use Jenkins deployed on Openshift cluster - Openshift Client Jenkins Plugin
+    oc get templates -n openshift -o custom-columns=NAME:.metadata.name|grep -i jenkins
+   https://blog.openshift.com/deploy-jenkins-pipelines-in-openshift-4-with-openshift-container-storage-4/
+
    https://medium.com/t/@pavankjadda/spring-boot-application-deployment-with-jenkins-pipeline-on-open-shift-cluster-f9fafdb0d6a9
 
    https://github.com/pavankjadda/BookStore

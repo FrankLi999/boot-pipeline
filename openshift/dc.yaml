@@ -1,0 +1,116 @@
+kind: DeploymentConfig
+apiVersion: apps.openshift.io/v1
+metadata:
+  annotations:
+    openshift.io/generated-by: OpenShiftNewApp
+  selfLink: >-
+    /apis/apps.openshift.io/v1/namespaces/wcm-bpm/deploymentconfigs/boot-pipeline
+  resourceVersion: '220293'
+  name: boot-pipeline
+  uid: 198797c7-420d-11ea-b182-0a580a8001ac
+  creationTimestamp: '2020-01-28T20:31:01Z'
+  generation: 6
+  namespace: wcm-bpm
+  labels:
+    app: boot-pipeline
+    app.kubernetes.io/component: boot-pipeline
+    app.kubernetes.io/instance: boot-pipeline
+spec:
+  strategy:
+    type: Rolling
+    rollingParams:
+      updatePeriodSeconds: 1
+      intervalSeconds: 1
+      timeoutSeconds: 600
+      maxUnavailable: 25%
+      maxSurge: 25%
+    resources: {}
+    activeDeadlineSeconds: 21600
+  triggers:
+    - type: ImageChange
+      imageChangeParams:
+        containerNames:
+          - boot-pipeline
+        from:
+          kind: ImageStreamTag
+          namespace: wcm-bpm
+          name: 'boot-pipeline:latest'
+        lastTriggeredImage: >-
+          image-registry.openshift-image-registry.svc:5000/wcm-bpm/boot-pipeline@sha256:5484a3339f4cb3d4ca58e13935f714689636279b90d8b0c8fc7b38d4397bcff8
+  replicas: 1
+  revisionHistoryLimit: 10
+  test: false
+  selector:
+    deploymentconfig: boot-pipeline
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        deploymentconfig: boot-pipeline
+      annotations:
+        openshift.io/generated-by: OpenShiftNewApp
+    spec:
+      containers:
+        - resources: {}
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 5002
+              scheme: HTTP
+            initialDelaySeconds: 30
+            timeoutSeconds: 1
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 10
+          terminationMessagePath: /dev/termination-log
+          name: boot-pipeline
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 5002
+              scheme: HTTP
+            initialDelaySeconds: 180
+            timeoutSeconds: 1
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 10
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+            - containerPort: 8443
+              protocol: TCP
+            - containerPort: 8778
+              protocol: TCP
+          imagePullPolicy: Always
+          terminationMessagePolicy: File
+          image: >-
+            image-registry.openshift-image-registry.svc:5000/wcm-bpm/boot-pipeline@sha256:5484a3339f4cb3d4ca58e13935f714689636279b90d8b0c8fc7b38d4397bcff8
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      securityContext: {}
+      schedulerName: default-scheduler
+status:
+  observedGeneration: 6
+  details:
+    message: manual change
+    causes:
+      - type: Manual
+  availableReplicas: 1
+  unavailableReplicas: 0
+  latestVersion: 2
+  updatedReplicas: 1
+  conditions:
+    - type: Available
+      status: 'True'
+      lastUpdateTime: '2020-01-28T20:31:59Z'
+      lastTransitionTime: '2020-01-28T20:31:59Z'
+      message: Deployment config has minimum availability.
+    - type: Progressing
+      status: 'True'
+      lastUpdateTime: '2020-01-28T20:33:08Z'
+      lastTransitionTime: '2020-01-28T20:33:04Z'
+      reason: NewReplicationControllerAvailable
+      message: replication controller "boot-pipeline-2" successfully rolled out
+  replicas: 1
+  readyReplicas: 1
