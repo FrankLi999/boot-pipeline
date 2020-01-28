@@ -42,6 +42,13 @@
 5. Openshift build for testing
    
    Deploy to Openshift from external Jenkins server:
+    to use Openshift Client Jenkins Plugin:
+     option 1: config the following parameters:
+        KUBERNETES_SERVICE_HOST: api.crc.testing
+        KUBERNETES_SERVICE_PORT_HTTPS: 8443
+        SKIP_TLS: true
+        AUTH_TOKEN:  use "oc whoami -t" to get the auth token
+     
     There are a few ways to use an external Jenkins to deploy applications to OpenShift:
 
     http://v1.uncontained.io/playbooks/continuous_delivery/external-jenkins-integration.html
