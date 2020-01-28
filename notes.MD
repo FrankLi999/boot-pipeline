@@ -82,7 +82,7 @@
                 4VBLlt6cM0UUPS2pSlPlQ/H4UJ5scJHdBA==
                 -----END CERTIFICATE-----
 
-            openshift.withCluster('local-cluster', 'local-openshift') {  
+       4)   openshift.withCluster('local-cluster', 'openshift-token') {     
             }
      
      
