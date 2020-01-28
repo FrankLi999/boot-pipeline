@@ -39,10 +39,10 @@ pipeline {
             when {
                 expression {
                     //TODO: external Jenkins server config for Openshift
-                    openshift.withCluster('https://api.crc.testing:6443', '7VYPRf-y-GnXIY58ii8nczqh6l7xRbHYl3NzRfnDuPY') {
+                    //openshift.withCluster('https://api.crc.testing:6443', '7VYPRf-y-GnXIY58ii8nczqh6l7xRbHYl3NzRfnDuPY') {
                     //sh "oc login  --insecure-skip-tls-verify -u kubeadmin -p cznQP-n4pBk-cnXTg-nkevH https://api.crc.testing:6443"
-                    //openshift.withCluster('local-cluster', 'local-openshift') {    
-                    // openshift.withCluster() {  
+                    // openshift.withCluster('local-cluster', 'local-openshift') {    
+                    openshift.withCluster() {  
                         openshift.withProject(DEV_PROJECT) {
                             return !openshift.selector("bc", "${TEMPLATE_NAME}").exists();
                         }
