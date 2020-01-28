@@ -30,11 +30,6 @@ pipeline {
         //         }
         //     }
         // }
-        // stage('Login to Openshift') {
-        //     steps {
-        //         sh "oc login  --insecure-skip-tls-verify -u kubeadmin -p cznQP-n4pBk-cnXTg-nkevH https://api.crc.testing:6443"
-        //     }
-        // }
         stage('Create Image Builder') {
             when {
                 expression {
@@ -52,18 +47,15 @@ pipeline {
             }
             steps {
                 script {
-                    // oc create -f https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/pipeline/nodejs-sample-pipeline.yaml
-                    // oc get buildconfig/nodejs-sample-pipeline -o yaml
                     // https://github.com/openshift/origin/tree/master/examples/jenkins/pipeline
                     // openshift.withCluster('https://api.crc.testing:6443', '7VYPRf-y-GnXIY58ii8nczqh6l7xRbHYl3NzRfnDuPY') {
-                    // openshift.withCluster() {
-                    echo "create build config"
-                    // openshift.withCluster('local-cluster', 'local-openshift') {   
-                    //     openshift.withProject(DEV_PROJECT) {
-                    //         // openshift.newBuild("--name=${TEMPLATE_NAME}", "--docker-image=docker.io/nginx:mainline-alpine", "--binary=true")
-                    //         openshift.newBuild("--name=${TEMPLATE_NAME}", "--image-stream=redhat-openjdk18-openshift:latest", "--binary=true")
-                    //     }
-                    // }
+                    // openshift.withCluster() {                   
+                    openshift.withCluster('local-cluster', 'openshift-token') { 
+                        openshift.withProject(DEV_PROJECT) {
+                            // openshift.newBuild("--name=${TEMPLATE_NAME}", "--docker-image=docker.io/nginx:mainline-alpine", "--binary=true")
+                            openshift.newBuild("--name=${TEMPLATE_NAME}", "--image-stream=redhat-openjdk18-openshift:latest", "--binary=true")
+                        }
+                    }
                 }
             }
         }
