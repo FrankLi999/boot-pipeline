@@ -24,7 +24,7 @@ pipeline {
                     echo "mvnHome = ${mvnHome}"
                     if (isUnix()) {
                         // sh "'${M2_HOME}/bin/mvn' -Dintegration-tests.skip=true -Dunit-tests.skip=true clean package -f ../pom.xml"
-                        sh "'${M2_HOME}/bin/mvn' -Dintegration-tests.skip=true -Dunit-tests.skip=true clean package"
+                        sh "'${M2_HOME}/bin/mvn' -Dintegration-tests.skip=true -Dunit-tests.skip=true clean package --insecure-skip-tls-verify"
                         //TODO: add params
                         // sh 'docker build -f Dockerfile -t xli9999/boot-pipeline:1.0 ../'
                         // sh 'docker build -f docker/Dockerfile -t xli9999/boot-pipeline:1.0 ../'
