@@ -18,10 +18,12 @@ pipeline {
     stages {
         stage('Checkout branch') {
             steps {
-                echo "repo rul is ${scm.locations[0].remote}"
+                
                 
                 if (branchName != null && !branchName.isEmpty()) {
-                    // def repositoryUrl = scm.locations[0].remote
+                    def repositoryUrl = scm.locations[0].remote
+                    echo "repo rul is ${repositoryUrl}"
+                    echo "branchName is ${branchName}"
                     // git branch: "${branch}", url: "${repositoryUrl}" // declared in environment
                     git branch: "${branchName}" // declared in environment
                 }
