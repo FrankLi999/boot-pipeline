@@ -84,7 +84,7 @@
 
        4)   openshift.withCluster('local-cluster', 'openshift-token') {     
             }
-     
+       5) oc new-app registry.access.redhat.com/redhat-openjdk-18/openjdk18-openshift~https://github.com/fmarchioni/masterspringboot.git --context-dir=demo-docker --name=springboot-demo-docker
      
      option 1: config the following parameters:
         KUBERNETES_SERVICE_HOST: api.crc.testing
