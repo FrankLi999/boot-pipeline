@@ -97,17 +97,20 @@ pipeline {
                             def app = openshift.newApp("boot-pipeline:latest")
                             def dcmap = app.narrow('dc').object()
                             echo ">>>>>>>>>>>>>>> 1"
-                            dcmap.spec.template.spec.containers[0].remove('ports')
+                            
                             dcmap.spec.template.spec.containers[0].ports[0].containerPort = 5002
                             dcmap.spec.template.spec.containers[0].ports[0].name = "http"
+                            dcmap.spec.template.spec.containers[0].remove('ports[1]')
                             echo ">>>>>>>>>>>>>>> 1.1"
                             openshift.apply(dcmap)
                             echo ">>>>>>>>>>>>>>> 2"
                             def svc = app.narrow('src');
                             def svcmap = svc.object()
-                            svcmap.spec.template.spec.containers[0].remove('ports')
+
                             svcmap.spec.template.spec.containers[0].ports[0].containerPort = 5002
                             svcmap.spec.template.spec.containers[0].ports[0].name = "http"
+                            svcmap.spec.template.spec.containers[0].remove('ports[1]')
+                            
                             echo ">>>>>>>>>>>>>>> 2.2"
                             openshift.apply(svcmap)
                             echo ">>>>>>>>>>>>>>> 3"
