@@ -95,15 +95,16 @@ pipeline {
                     openshift.withCluster('local-cluster', 'openshift-token') { 
                         openshift.withProject(DEV_PROJECT) {
                             def app = openshift.newApp("boot-pipeline:latest")
-                           
+                            echo ">>>>>>>>>> 0"
+                            def dcmap = app.narrow('dc').object()
+                            dcmap.spec.template.spec.containers[0].ports[0].containerPort = "5002"                            
+                            dcmap.remove('status')
+                            openshift.apply(dcmap)
                             echo ">>>>>>>>>> 1"
                             app.narrow('svc').expose()
                             echo ">>>>>>>>>> 2"
                             //http://localhost:5002/actuator/health
-                             def dcmap = app.narrow('dc').object()
-                            dcmap.spec.template.spec.containers[0].ports[0].containerPort = "5002"
-                            echo ">>>>>>>>>> 0"
-                            openshift.apply(dcmap)
+                            
                             openshift.set("probe dc/boot-pipeline --readiness --get-url=http://:5002/actuator/health --initial-delay-seconds=30 --failure-threshold=10 --period-seconds=10")
                             echo ">>>>>>>>>> 3"
                             openshift.set("probe dc/boot-pipeline --liveness  --get-url=http://:5002/actuator/health --initial-delay-seconds=180 --failure-threshold=10 --period-seconds=10")
