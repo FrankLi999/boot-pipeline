@@ -98,6 +98,7 @@ pipeline {
                             def dcmap = app.narrow('dc').object()
                             dcmap.spec.template.spec.containers[0].ports[0].containerPort = 5002
                             echo ">>>>>>>>>>>>> 0"
+                             echo "${dcmap}"
                             openshift.apply(dcmap)
                             echo ">>>>>>>>>>>>> 1"
                             def svc = app.narrow('svc')
