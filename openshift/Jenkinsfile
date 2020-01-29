@@ -95,7 +95,7 @@ pipeline {
                     openshift.withCluster('local-cluster', 'openshift-token') { 
                         openshift.withProject(DEV_PROJECT) {
                             def app = openshift.newApp("${TEMPLATE_NAME}:latest")
-\                           def dcmap = app.narrow('dc').object()
+                            def dcmap = app.narrow('dc').object()
                             dcmap.spec.template.spec.containers[0].ports[0].containerPort = 5002
                             openshift.apply(dcmap)
                             
