@@ -99,6 +99,7 @@ pipeline {
                             def svc = app.narrow('src');
                             echo ">>>>>>>>>>>>>>> 0.1"
                             def dcmap = app.narrow('dc').object()
+                            def svcmap = svc.object()
                             echo ">>>>>>>>>>>>>>> 1"
                             
                             dcmap.spec.template.spec.containers[0].ports[0].containerPort = 5002
@@ -107,7 +108,7 @@ pipeline {
                             echo ">>>>>>>>>>>>>>> 1.1"
                             openshift.apply(dcmap)
                             echo ">>>>>>>>>>>>>>> 2"
-                            def svcmap = svc.object()
+                            
                              echo ">>>>>>>>>>>>>>> 2.1"
                             svcmap.spec.template.spec.containers[0].ports[0].containerPort = 5002
                             svcmap.spec.template.spec.containers[0].ports[0].name = "http"
