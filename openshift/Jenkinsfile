@@ -96,9 +96,17 @@ pipeline {
                         openshift.withProject(DEV_PROJECT) {
                             def app = openshift.newApp("boot-pipeline:latest")
                             def dcmap = app.narrow('dc').object()
+                            def svc = app.narrow('src');
+                            def svcmap = svc.object()
+                            dcmap.spec.template.spec.containers[0].remove('ports')
                             dcmap.spec.template.spec.containers[0].ports[0].containerPort = 5002
+                            dcmap.spec.template.spec.containers[0].ports[0].name = "http"
                             openshift.apply(dcmap)
-                            app.narrow('svc').expose()
+                            svcmap.spec.template.spec.containers[0].remove('ports')
+                            svcmap.spec.template.spec.containers[0].ports[0].containerPort = 5002
+                            svcmap.spec.template.spec.containers[0].ports[0].name = "http"
+                            openshift.apply(svcmap)
+                            svc.expose()
                             //http://localhost:5002/actuator/health
                             
                             openshift.set("probe dc/boot-pipeline --readiness --get-url=http://:5002/actuator/health --initial-delay-seconds=30 --failure-threshold=10 --period-seconds=10")
