@@ -61,24 +61,24 @@ pipeline {
                 }
             }
         }
-        stage('Build Image') {
-            steps {
-                script {
-                    def mvnHome = tool 'Maven363'
-                    echo "mvnHome = ${mvnHome}"
-                    sh "'${M2_HOME}/bin/mvn' -Dintegration-tests.skip=true -Dunit-tests.skip=true clean package"
-                    sh "rm -rf ocp && mkdir -p ocp/deployments"
-                    sh "pwd && ls -la target "
-                    sh "cp target/*.jar ocp/deployments"                    
-                    openshift.withCluster('local-cluster', 'openshift-token') { 
-                        openshift.withProject(DEV_PROJECT) {
-                            // openshift.selector("bc", "$TEMPLATE_NAME").startBuild("--from-archive=${ARTIFACT_FOLDER}/${APPLICATION_NAME}_${BUILD_NUMBER}.tar.gz", "--wait=true")
-                            openshift.selector("bc", "${TEMPLATE_NAME}").startBuild("--from-dir=./ocp", "--follow", "--wait=true")
-                        }
-                    }
-                }
-            }
-        }
+        // stage('Build Image') {
+        //     steps {
+        //         script {
+        //             def mvnHome = tool 'Maven363'
+        //             echo "mvnHome = ${mvnHome}"
+        //             sh "'${M2_HOME}/bin/mvn' -Dintegration-tests.skip=true -Dunit-tests.skip=true clean package"
+        //             sh "rm -rf ocp && mkdir -p ocp/deployments"
+        //             sh "pwd && ls -la target "
+        //             sh "cp target/*.jar ocp/deployments"                    
+        //             openshift.withCluster('local-cluster', 'openshift-token') { 
+        //                 openshift.withProject(DEV_PROJECT) {
+        //                     // openshift.selector("bc", "$TEMPLATE_NAME").startBuild("--from-archive=${ARTIFACT_FOLDER}/${APPLICATION_NAME}_${BUILD_NUMBER}.tar.gz", "--wait=true")
+        //                     openshift.selector("bc", "${TEMPLATE_NAME}").startBuild("--from-dir=./ocp", "--follow", "--wait=true")
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
 
         stage('Create TEST') {
             when {
@@ -95,8 +95,8 @@ pipeline {
                     openshift.withCluster('local-cluster', 'openshift-token') { 
                         openshift.withProject(DEV_PROJECT) {
                             def app = openshift.newApp("${TEMPLATE_NAME}:latest")
-                            def dcmap = app.narrow('dc').object()
-                            dcmap.spec.template.spec.containers[0].ports[0] = 5002
+\                           def dcmap = app.narrow('dc').object()
+                            dcmap.spec.template.spec.containers[0].ports[0].containerPort = 5002
                             openshift.apply(dcmap)
                             
                             def svc = app.narrow('svc')
