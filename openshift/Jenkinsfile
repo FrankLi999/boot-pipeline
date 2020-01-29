@@ -101,8 +101,8 @@ pipeline {
                             ports[0].containerPort = 5002
                             dcmap.spec.template.spec.containers[0].ports.retainAll([ports[0]])                           
                             echo ">>>>>>>>>>>>> 0"
-                             echo "${dc}"
-                            openshift.create(dc)
+                             echo "${dcmap}"
+                            openshift.create(dcmap)
                             echo ">>>>>>>>>>>>> 1"
                             def svc = app.narrow('svc')
                             def svcmap = svc.object()
