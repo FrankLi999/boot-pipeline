@@ -103,7 +103,7 @@ pipeline {
                             
                             dcmap.spec.template.spec.containers[0].ports[0].containerPort = 5002
                             dcmap.spec.template.spec.containers[0].ports[0].name = "http"
-                            dcmap.spec.template.spec.containers[0].remove('ports[1]')
+                            // dcmap.spec.template.spec.containers[0].remove('ports[1]')
                             echo ">>>>>>>>>>>>>>> 1.1"
                             openshift.apply(dcmap)
                             echo ">>>>>>>>>>>>>>> 2"
@@ -111,8 +111,7 @@ pipeline {
                              echo ">>>>>>>>>>>>>>> 2.1"
                             svcmap.spec.template.spec.containers[0].ports[0].containerPort = 5002
                             svcmap.spec.template.spec.containers[0].ports[0].name = "http"
-                            svcmap.spec.template.spec.containers[0].remove('ports[1]')
-                            
+                            // svcmap.spec.template.spec.containers[0].remove('ports[1]')                            
                             echo ">>>>>>>>>>>>>>> 2.2"
                             openshift.apply(svcmap)
                             echo ">>>>>>>>>>>>>>> 3"
