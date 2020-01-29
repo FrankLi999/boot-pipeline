@@ -110,7 +110,7 @@ pipeline {
                             svcports[0].name = "http"
                             svcmap.spec.ports.retainAll([svcports[0]])
                             echo "${svc}"
-                            openshift.apply(svc)
+                            openshift.apply(svcmap)
                             svc.expose()
                             //http://localhost:5002/actuator/health
                             
