@@ -61,24 +61,24 @@ pipeline {
                 }
             }
         }
-        // stage('Build Image') {
-        //     steps {
-        //         script {
-        //             def mvnHome = tool 'Maven363'
-        //             echo "mvnHome = ${mvnHome}"
-        //             sh "'${M2_HOME}/bin/mvn' -Dintegration-tests.skip=true -Dunit-tests.skip=true clean package"
-        //             sh "rm -rf ocp && mkdir -p ocp/deployments"
-        //             sh "pwd && ls -la target "
-        //             sh "cp target/*.jar ocp/deployments"                    
-        //             openshift.withCluster('local-cluster', 'openshift-token') { 
-        //                 openshift.withProject(DEV_PROJECT) {
-        //                     // openshift.selector("bc", "$TEMPLATE_NAME").startBuild("--from-archive=${ARTIFACT_FOLDER}/${APPLICATION_NAME}_${BUILD_NUMBER}.tar.gz", "--wait=true")
-        //                     openshift.selector("bc", "${TEMPLATE_NAME}").startBuild("--from-dir=./ocp", "--follow", "--wait=true")
-        //                 }
-        //             }
-        //         }
-        //     }
-        // }
+        stage('Build Image') {
+            steps {
+                script {
+                    def mvnHome = tool 'Maven363'
+                    echo "mvnHome = ${mvnHome}"
+                    sh "'${M2_HOME}/bin/mvn' -Dintegration-tests.skip=true -Dunit-tests.skip=true clean package"
+                    sh "rm -rf ocp && mkdir -p ocp/deployments"
+                    sh "pwd && ls -la target "
+                    sh "cp target/*.jar ocp/deployments"                    
+                    openshift.withCluster('local-cluster', 'openshift-token') { 
+                        openshift.withProject(DEV_PROJECT) {
+                            // openshift.selector("bc", "$TEMPLATE_NAME").startBuild("--from-archive=${ARTIFACT_FOLDER}/${APPLICATION_NAME}_${BUILD_NUMBER}.tar.gz", "--wait=true")
+                            openshift.selector("bc", "${TEMPLATE_NAME}").startBuild("--from-dir=./ocp", "--follow", "--wait=true")
+                        }
+                    }
+                }
+            }
+        }
 
         stage('Create TEST') {
             when {
@@ -94,13 +94,11 @@ pipeline {
                 script {
                     openshift.withCluster('local-cluster', 'openshift-token') { 
                         openshift.withProject(DEV_PROJECT) {
-                            def app = openshift.newApp("boot-pipeline:latest")
+                            def app = openshift.newApp("${TEMPLATE_NAME}:latest")
                             def dcmap = app.narrow('dc').object()
                             def ports = dcmap.spec.template.spec.containers[0].ports
                             ports[0].containerPort = 5002
                             dcmap.spec.template.spec.containers[0].ports.retainAll([ports[0]])
-                            echo ">>>>>>>>>>>>>>>>>>> 1"
-                            echo "${dcmap.spec.template.spec.containers[0].ports}"
                             openshift.apply(dcmap)
                             def svc = app.narrow('svc');
                             def svcmap = svc.object()
@@ -114,13 +112,13 @@ pipeline {
                             svc.expose()
                             //http://localhost:5002/actuator/health
                             
-                            openshift.set("probe dc/boot-pipeline --readiness --get-url=http://:5002/actuator/health --initial-delay-seconds=30 --failure-threshold=10 --period-seconds=10")
-                            openshift.set("probe dc/boot-pipeline --liveness  --get-url=http://:5002/actuator/health --initial-delay-seconds=180 --failure-threshold=10 --period-seconds=10")
-                            def dc = openshift.selector("dc", "boot-pipeline")
+                            openshift.set("probe dc/${TEMPLATE_NAME} --readiness --get-url=http://:5002/actuator/health --initial-delay-seconds=30 --failure-threshold=10 --period-seconds=10")
+                            openshift.set("probe dc/${TEMPLATE_NAME} --liveness  --get-url=http://:5002/actuator/health --initial-delay-seconds=180 --failure-threshold=10 --period-seconds=10")
+                            def dc = openshift.selector("dc", "${TEMPLATE_NAME}")
                             while (dc.object().spec.replicas != dc.object().status.availableReplicas) {
                                 sleep 10
                             }
-                            openshift.set("triggers", "dc/boot-pipeline", "--manual")
+                            openshift.set("triggers", "dc/${TEMPLATE_NAME}", "--manual")
                         }
                     }
                 }
@@ -131,7 +129,7 @@ pipeline {
                 script {
                     openshift.withCluster('local-cluster', 'openshift-token') { 
                         openshift.withProject(env.DEV_PROJECT) {
-                            openshift.selector("dc", "boot-pipeline").rollout().latest()
+                            openshift.selector("dc", "${TEMPLATE_NAME}").rollout().latest()
                         }
                     }
                 }
