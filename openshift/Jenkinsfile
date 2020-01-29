@@ -95,37 +95,23 @@ pipeline {
                     openshift.withCluster('local-cluster', 'openshift-token') { 
                         openshift.withProject(DEV_PROJECT) {
                             def app = openshift.newApp("boot-pipeline:latest")
-                             echo ">>>>>>>>>>>>>>> 0"
-                            echo ">>>>>>>>>>>>>>> 0.1"
                             def dcmap = app.narrow('dc').object()
-                            echo ">>>>>>>>>>>>>>> 1"
                             def ports = dcmap.spec.template.spec.containers[0].ports
                             ports[0].containerPort = 5002
-                            echo ">>>>>>>>>>>>>>> 1.2"
-                            echo "${ ports}"
                             dcmap.spec.template.spec.containers[0].ports.retainAll([ports[0]])
-                            echo ">>>>>>>>>>>>>>> 1.3"
-                            echo "${ ports}"
-                            // dcmap.spec.template.spec.containers[0].ports[0].containerPort = 5002
-                            // dcmap.spec.template.spec.containers[0].remove('ports[1]')
-                            echo ">>>>>>>>>>>>>>> 1.4"
+                            echo ">>>>>>>>>>>>>>>>>>> 1"
+                            echo "${dcmap.spec.template.spec.containers[0].ports.retainAll([ports[0]])}"
                             openshift.apply(dcmap)
-                            echo ">>>>>>>>>>>>>>> 2"
                             def svc = app.narrow('svc');
                             def svcmap = svc.object()
-                            echo ">>>>>>>>>>>>>>> 2.1"
                             def svcports = svcmap.spec.ports
+                            svcports[0].port = 5002
+                            svcports[0].targetPort = 5002
+                            svcports[0].name = "http"
                             svcmap.spec.ports.retainAll([svcports[0]]);
-                            svcmap.spec.ports[0].port = 5002
-                            svcmap.spec.ports[0].targetPort = 5002
-                            svcmap.spec.ports[0].name = "http"
-                            // svcmap.spec.template.spec.containers[0].remove('ports[1]')                            
-                            echo ">>>>>>>>>>>>>>> 2.2"
-                            openshift.apply(svcmap)
-                            echo ">>>>>>>>>>>>>>> 3"
                             
+                            openshift.apply(svcmap)
                             svc.expose()
-                            echo ">>>>>>>>>>>>>>> 4"
                             //http://localhost:5002/actuator/health
                             
                             openshift.set("probe dc/boot-pipeline --readiness --get-url=http://:5002/actuator/health --initial-delay-seconds=30 --failure-threshold=10 --period-seconds=10")
