@@ -49,6 +49,7 @@
          Credentials -> System -> Global credentials -> Add Credential 
         kind: Openshift Token for Openshift client plugin
         > "oc whoami -t" to get the auth token
+           dNNShiIf0WVY2nurp2vNOQzRn7ZV0dS7AdvhkyOcT0s
 
         or: cznQP-n4pBk-cnXTg-nkevH
         
