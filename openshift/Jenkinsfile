@@ -96,16 +96,20 @@ pipeline {
                         openshift.withProject(DEV_PROJECT) {
                             def app = openshift.newApp("${TEMPLATE_NAME}:latest")
                             def dcmap = app.narrow('dc').object()
-                            dcmap.spec.template.spec.containers[0].ports[0].containerPort = 5002
+                             def ports = dcmap.spec.template.spec.containers[0].ports
+                            ports[0].containerPort = 5002
+                            dcmap.spec.template.spec.containers[0].ports.retainAll([ports[0]])                           
                             echo ">>>>>>>>>>>>> 0"
                              echo "${dcmap}"
                             openshift.apply(dcmap)
                             echo ">>>>>>>>>>>>> 1"
                             def svc = app.narrow('svc')
                             def svcmap = svc.object()
-                            svcmap.spec.ports[0].port = 5002
-                            svcmap.spec.ports[0].targetPort = 5002
-                            svcmap.spec.ports[0].name = "http"
+                            def svcports = svcmap.spec.ports
+                            svcports[0].port = 5002
+                            svcports[0].targetPort = 5002
+                            svcports[0].name = "http"
+                            svcmap.spec.ports.retainAll([svcports[0]])
                             echo ">>>>>>>>>>>>> 2"
                             openshift.apply(svcmap)
                             echo ">>>>>>>>>>>>> 3"
