@@ -99,7 +99,6 @@ pipeline {
                             echo ">>>>>>>>>>>>>>> 0.1"
                             def dcmap = app.narrow('dc').object()
                             echo ">>>>>>>>>>>>>>> 1"
-                            echo "${svcmap}"
                             dcmap.spec.template.spec.containers[0].ports[0].containerPort = 5002
                             // dcmap.spec.template.spec.containers[0].remove('ports[1]')
                             echo ">>>>>>>>>>>>>>> 1.1"
